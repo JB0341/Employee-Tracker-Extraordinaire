@@ -15,7 +15,7 @@ CREATE TABLE employee (
 );
 
 
-CREATE TABLE role (
+CREATE TABLE roles (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KeyboardEvent, 
     title VARCHAR(300), 
     salary DECIMAL(10,2),
