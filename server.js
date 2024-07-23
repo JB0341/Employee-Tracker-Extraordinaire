@@ -1,26 +1,29 @@
 const inquirer = require("inquirer");
-const mysql = require('mysql2');
+const { Pool } = require('pg');
 
 
-const connection = mysql.createConnection({
-    host 'localhost',
-    port: 3001,
-    user: 'postgres',
-    password: 'The6th287!',
-    database: 'employeeTracker_db',
-});
+// Connect to database
+const pool = new Pool(
+    {
+        // Enter PostgreSQL username
+        user: 'postgres',
+        // Enter PostgreSQL password
+        password: 'The6th287!',
+        host: 'localhost',
+        database: 'courses_db'
+    },
+    console.log('Connected to the courses_db database!')
+)
 
-connection.connect((err) => {
-    if (err) throw err;
-    start();
-});
+pool.connect();
+
 
 function start() {
-    inquirer
-        .createPromptModule({
+    const prompt = inquirer.createPromptModule();
+    prompt({
             type: 'list',
             name: 'action',
-            message: 'what would you like to do?'
+            message: 'what would you like to do?',
             choices: [
                 'View Departments',
                 'View Roles',
@@ -55,19 +58,76 @@ function start() {
                 case 'Update Employee Role':
                     updateEmployeeRole();
                 case 'Exit':
-                    connection.end();
-                    break;
+                    process.exit();
             }
         });
 }
-process.on('exit', () => {
-    connection.end();
-});
 
-function viewDepartments( {
-    const query = "select * From departments";
-    connection.query(query, (err, res) => {
+function viewDepartments() {
+    const query = 'SELECT * From departments';
+    pool.query(query, (err, res) => {
         if (err) throw err;
         console.table(res);
     });
+}
+
+function viewRoles() {
+    const query = 'SELECT roles.title, roles.id, departments.department_name, roles.salary from roles, join departments on roles.department_id = departments.id';
+    pool.query(query, (err, res) => {
+        if (err) throw err;
+        console.table(res);
+    });
+}
+
+function viewEmployees() {
+    const query = `
+    SELECT e.id, e.first_name, e.last_name, r.title, d.department_name, r.salary
+    FROM employee e
+    LEFT JOIN roles r ON e.role_id = r.id
+    LEFT JOIN departments d ON r.department_id = d.id
+    LEFT JOIN employee m ON e.manager_id = m.id;
+     `;
+     pool.query(query, (err, res) => {
+        if (err) throw err;
+        console.table(res);
+    });
+}
+
+function viewDepartments() {
+    const query = 'SELECT * From departments';
+    pool.query(query, (err, res) => {
+        if (err) throw err;
+        console.table(res);
+    });
+}
+
+function viewDepartments() {
+    const query = 'SELECT * From departments';
+    pool.query(query, (err, res) => {
+        if (err) throw err;
+        console.table(res);
+    });
+}
+
+function viewDepartments() {
+    const query = 'SELECT * From departments';
+    pool.query(query, (err, res) => {
+        if (err) throw err;
+        console.table(res);
+    });
+}
+
+function viewDepartments() {
+    const query = 'SELECT * From departments';
+    pool.query(query, (err, res) => {
+        if (err) throw err;
+        console.table(res);
+    });
+}
+
+
+process.on('exit', () => {
+    pool.end();
 });
+
+start();

@@ -1,21 +1,21 @@
 INSERT INTO departments (department_name)
 VALUES
 ('Marketing'),
-('Research and Development')
+('Research and Development'),
 ('Recruiting'),
 ('Sales'),
-('IT')
+('IT'),
 ('Human Resources'),
 ('CEO');
 
 INSERT INTO roles (title, salary, department_id)
 VALUES
 ('Head of HR', 90000.00, 6),
-('Recruiter', 40000.00 'plus 3% commission', 3),
-('Sales Representative', 50000.00 'plus commission', 4),
+('Recruiter', 40000.00, 3),
+('Sales Representative', 50000.00, 4),
 ('Engineer', 100000.00, 5),
 ('Technician', 125000.00, 2),
-('Head of Marketing', 75000.00, 1)
+('Head of Marketing', 75000.00, 1),
 ('C Suite', 250000.00, 7);
 
 INSERT INTO employee (first_name, last_name, role_id)
@@ -27,3 +27,23 @@ VALUES
 ('Matt', 'Lego', 5),
 ('Zeke', 'Sword', 6),
 ('Caleb', 'Teckk', 7);
+
+-- INSERT INTO roles (title, salary)
+-- VALUES
+-- ('Head of HR', 90000.00),
+-- ('Recruiter', 40000.00),
+-- ('Sales Representative', 50000.00),
+-- ('Engineer', 100000.00),
+-- ('Technician', 125000.00),
+-- ('Head of Marketing', 75000.00),
+-- ('C Suite', 250000.00);
+
+-- INSERT INTO employee (first_name, last_name)
+-- VALUES
+-- ('Jeremy', 'Alexander'),
+-- ('Shaketa', 'Johnson'),
+-- ('Phillip', 'Roshi'),
+-- ('Eman', 'Truth'),
+-- ('Matt', 'Lego'),
+-- ('Zeke', 'Sword'),
+-- ('Caleb', 'Teckk');
