@@ -63,3 +63,11 @@ function start() {
 process.on('exit', () => {
     connection.end();
 });
+
+function viewDepartments( {
+    const query = "select * From departments";
+    connection.query(query, (err, res) => {
+        if (err) throw err;
+        console.table(res);
+    });
+});
