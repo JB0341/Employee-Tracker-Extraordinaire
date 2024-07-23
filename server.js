@@ -21,20 +21,20 @@ pool.connect();
 function start() {
     const prompt = inquirer.createPromptModule();
     prompt({
-            type: 'list',
-            name: 'action',
-            message: 'what would you like to do?',
-            choices: [
-                'View Departments',
-                'View Roles',
-                'View Employees',
-                'Add Department',
-                'Add Role',
-                'Add Employee',
-                'Update Role',
-                'Exit',
-            ],
-        })
+        type: 'list',
+        name: 'action',
+        message: 'what would you like to do?',
+        choices: [
+            'View Departments',
+            'View Roles',
+            'View Employees',
+            'Add Department',
+            'Add Role',
+            'Add Employee',
+            'Update Role',
+            'Exit',
+        ],
+    })
         .then((answer) => {
             switch (answer.action) {
                 case 'View departments':
@@ -86,8 +86,8 @@ function viewEmployees() {
     LEFT JOIN roles r ON e.role_id = r.id
     LEFT JOIN departments d ON r.department_id = d.id
     LEFT JOIN employee m ON e.manager_id = m.id;
-     `;
-     pool.query(query, (err, res) => {
+    `;
+    pool.query(query, (err, res) => {
         if (err) throw err;
         console.table(res);
     });
