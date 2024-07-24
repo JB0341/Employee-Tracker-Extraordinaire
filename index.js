@@ -2,40 +2,38 @@ const inquirer = require("inquirer");
 const { Pool } = require('pg');
 
 
-// Connect to database
+
 const pool = new Pool(
     {
-        // Enter PostgreSQL username
         user: 'postgres',
-        // Enter PostgreSQL password
         password: 'The6th287!',
         host: 'localhost',
-        database: 'courses_db'
+        database: 'employee_tracker_db'
     },
-    console.log('Connected to the courses_db database!')
+    console.log('Connected to the employee_tracker_db database!')
 )
 
 pool.connect();
 
 
 function start() {
-    const prompt = inquirer.createPromptModule();
-    prompt({
-        type: 'list',
-        name: 'action',
-        message: 'what would you like to do?',
-        choices: [
-            'View Departments',
-            'View Roles',
-            'View Employees',
-            'Add Department',
-            'Add Role',
-            'Add Employee',
-            'Update Role',
-            'Exit',
-        ],
-    })
-        .then((answer) => {
+    inquirer.prompt([
+        {
+            type: 'list',
+            name: 'action',
+            message: 'what would you like to do?',
+            choices: [
+                'View Departments',
+                'View Roles',
+                'View Employees',
+                'Add Department',
+                'Add Role',
+                'Add Employee',
+                'Update Role',
+                'Exit',
+            ],
+        }
+    ]).then((answer) => {
             switch (answer.action) {
                 case 'View departments':
                     viewDepartments();
@@ -68,6 +66,7 @@ function viewDepartments() {
     pool.query(query, (err, res) => {
         if (err) throw err;
         console.table(res);
+        start();
     });
 }
 
@@ -76,6 +75,7 @@ function viewRoles() {
     pool.query(query, (err, res) => {
         if (err) throw err;
         console.table(res);
+        start();
     });
 }
 
@@ -90,6 +90,7 @@ function viewEmployees() {
     pool.query(query, (err, res) => {
         if (err) throw err;
         console.table(res);
+        start();
     });
 }
 
@@ -133,7 +134,7 @@ function addRole() {
     )
     .then((answers) => {
         const department = res.find(
-            (department) => department.name === answers.department
+            (department) => department.name = answers.department
         );
     })
     const query = 'INSERT INTO roles SET ?';
@@ -150,13 +151,61 @@ function addRole() {
     });
 }
 
-function viewDepartments() {
-    const query = 'SELECT * From departments';
-    pool.query(query, (err, res) => {
-        if (err) throw err;
-        console.table(res);
-    });
-}
+function addEmployee() {
+    pool.query("SELECT id, title FROM roles", (error, results) => {
+        if (error) {
+            console.error(error);
+            return;
+        }
+
+        const roles = results.map(({ id, title }) => ({
+            name: title,
+            value: id,
+        }));
+                inquirer
+                    .prompt([
+                        {
+                            type: "input",
+                            name: "firstName",
+                            message: "Enter the employee's first name:",
+                        },
+                        {
+                            type: "input",
+                            name: "lastName",
+                            message: "Enter the employee's last name:",
+                        },
+                        {
+                            type: "list",
+                            name: "roleId",
+                            message: "Select the employee role:",
+                            choices: roles,
+                        },
+                    ])
+                    .then((answers) => {
+                        const empData =
+                            "INSERT INTO employee (first_name, last_name, role_id,) VALUES (?, ?, ?,)";
+                        const values = [
+                            answers.firstName,
+                            answers.lastName,
+                            answers.roleId,
+                        ];
+                        pool.query(empData, values, (error) => {
+                            if (error) {
+                                console.error(error);
+                                return;
+                            }
+
+                            console.log('Employee added.');
+                            start();
+                        });
+                    })
+                    .catch((error) => {
+                        console.error(error);
+                    });
+            }
+        );
+    }
+
 
 function viewDepartments() {
     const query = 'SELECT * From departments';
