@@ -3,9 +3,9 @@ CREATE DATABASE employee_tracker_db;
 
 \c employee_tracker_db
 
-CREATE TABLE departments (
+CREATE TABLE department (
     id SERIAL PRIMARY KEY, 
-    department_name VARCHAR(100) NOT NULL
+    department_name VARCHAR(30) NOT NULL
 );
 
 CREATE TABLE roles (
@@ -14,7 +14,7 @@ CREATE TABLE roles (
     salary DECIMAL(10,2),
     department_id INTEGER, 
     FOREIGN KEY (department_id)
-    REFERENCES departments(id)
+    REFERENCES department(id)
     ON DELETE SET NULL
 );
 
