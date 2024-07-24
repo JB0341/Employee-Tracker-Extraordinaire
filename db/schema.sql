@@ -3,7 +3,7 @@ CREATE DATABASE employee_tracker_db;
 
 \c employee_tracker_db
 
-CREATE TABLE department (
+CREATE TABLE departments (
     id SERIAL PRIMARY KEY, 
     department_name VARCHAR(30) NOT NULL
 );
@@ -14,7 +14,7 @@ CREATE TABLE roles (
     salary DECIMAL(10,2),
     department_id INTEGER, 
     FOREIGN KEY (department_id)
-    REFERENCES department(id)
+    REFERENCES departments(id)
     ON DELETE SET NULL
 );
 

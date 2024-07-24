@@ -34,47 +34,59 @@ function start() {
             ],
         }
     ]).then((answer) => {
-            switch (answer.action) {
-                case 'View departments':
-                    viewDepartments();
-                    break;
-                case 'View Roles':
-                    viewRoles();
-                    break;
-                case 'View Employees':
-                    viewEmployees();
-                    break;
-                case 'Add Department':
-                    addDepartment();
-                    break;
-                case 'Add Role':
-                    addRole();
-                    break;
-                case 'Add Employee':
-                    addEmployee();
-                    break;
-                case 'Update Employee Role':
-                    updateEmployeeRole();
-                case 'Exit':
-                    process.exit();
-            }
-        });
+        switch (answer.action) {
+            case 'View Departments':
+                viewDepartments();
+                break;
+            case 'View Roles':
+                viewRoles();
+                break;
+            case 'View Employees':
+                viewEmployees();
+                break;
+            case 'Add Department':
+                addDepartment();
+                break;
+            case 'Add Role':
+                addRole();
+                break;
+            case 'Add Employee':
+                addEmployee();
+                break;
+            case 'Update Employee Role':
+                updateEmployeeRole();
+            case 'Exit':
+                process.exit();
+        }
+    });
 }
 
 function viewDepartments() {
-    const query = 'SELECT * From departments';
-    pool.query(query, (err, res) => {
+    const query = 'SELECT * FROM departments';
+    pool.query(query, (err, result) => {
         if (err) throw err;
-        console.table(res);
+        console.table(result.rows); // collect rows from result
         start();
     });
 }
 
 function viewRoles() {
-    const query = 'SELECT roles.title, roles.id, departments.department_name, roles.salary from roles, join departments on roles.department_id = departments.id';
-    pool.query(query, (err, res) => {
+    const query = `
+    SELECT 
+        roles.title, 
+        roles.id, 
+        departments.department_name, 
+        roles.salary 
+    FROM 
+        roles 
+    JOIN 
+        departments 
+    ON 
+        roles.department_id = departments.id
+    `;
+    pool.query(query, (err, result) => {
         if (err) throw err;
-        console.table(res);
+        console.table(result.rows);
         start();
     });
 }
@@ -85,11 +97,10 @@ function viewEmployees() {
     FROM employee e
     LEFT JOIN roles r ON e.role_id = r.id
     LEFT JOIN departments d ON r.department_id = d.id
-    LEFT JOIN employee m ON e.manager_id = m.id;
     `;
-    pool.query(query, (err, res) => {
+    pool.query(query, (err, result) => {
         if (err) throw err;
-        console.table(res);
+        console.table(result.rows);
         start();
     });
 }
@@ -104,51 +115,57 @@ function addDepartment() {
         .then((answer) => {
             console.log(answer.name);
             const query = `INSERT INTO departments (department_name) VALUES ('${answer.name}')`;
-            pool.query(query, (err, res) => {
+            pool.query(query, (err, result) => {
                 if (err) throw err;
-                console.log('Added department ${answer.name}.');
+                console.log(`Added department ${answer.name}.`);
+                start();
             })
-    });
+        });
 }
 
 function addRole() {
-    inquirer
-        .prompt({
-            type: 'input',
-            name: 'title',
-            message: 'Enter the new role title:',
-        },
-        {
-            type: 'input',
-            name: 'salary',
-            message: 'Enter the salary of new role:',
-        },
-        {
-            type: 'list',
-            name: 'department',
-            message: 'Select the department for the role:',
-            choices: res.map(
-                (department) => department.department_name
-            ),
-        },
-    )
-    .then((answers) => {
-        const department = res.find(
-            (department) => department.name = answers.department
-        );
-    })
-    const query = 'INSERT INTO roles SET ?';
-    pool.query(
-        query,
-        {
-            title: answers.title,
-            salary: answers.salary,
-            department_id: department,
-        },
-        (err, res) => {
+    const query = `
+    SELECT 
+        departments.department_name as name,
+        departments.id as value
+    FROM
+        departments`;
+
+    pool.query(query, (err, departments) => {
         if (err) throw err;
-        console.log('Added role ${answers.title} with salary ${answers.salary} to the ${answers.department} department.');
+        inquirer
+            .prompt([
+                {
+                    type: 'input',
+                    name: 'title',
+                    message: 'Enter the new role title:',
+                },
+                {
+                    type: 'input',
+                    name: 'salary',
+                    message: 'Enter the salary of new role:',
+                },
+                {
+                    type: 'list',
+                    name: 'department',
+                    message: 'Select the department for the role:',
+                    choices: departments.rows,
+                },
+            ])
+            .then((answers) => {
+                const query = 'INSERT INTO roles (title, salary, department_id) VALUES ($1,$2,$3)';
+                pool.query(
+                    query,
+                    Object.values(answers),
+                    (err, result) => {
+                        if (err) throw err;
+                        console.log(`Added role ${answers.title} with salary ${answers.salary} to the ${answers.department} department.`);
+                        start();
+                    });
+            })
     });
+
+
 }
 
 function addEmployee() {
@@ -158,61 +175,52 @@ function addEmployee() {
             return;
         }
 
-        const roles = results.map(({ id, title }) => ({
+        const roles = results.rows.map(({ id, title }) => ({
             name: title,
             value: id,
         }));
-                inquirer
-                    .prompt([
-                        {
-                            type: "input",
-                            name: "firstName",
-                            message: "Enter the employee's first name:",
-                        },
-                        {
-                            type: "input",
-                            name: "lastName",
-                            message: "Enter the employee's last name:",
-                        },
-                        {
-                            type: "list",
-                            name: "roleId",
-                            message: "Select the employee role:",
-                            choices: roles,
-                        },
-                    ])
-                    .then((answers) => {
-                        const empData =
-                            "INSERT INTO employee (first_name, last_name, role_id,) VALUES (?, ?, ?,)";
-                        const values = [
-                            answers.firstName,
-                            answers.lastName,
-                            answers.roleId,
-                        ];
-                        pool.query(empData, values, (error) => {
-                            if (error) {
-                                console.error(error);
-                                return;
-                            }
-
-                            console.log('Employee added.');
-                            start();
-                        });
-                    })
-                    .catch((error) => {
+        inquirer
+            .prompt([
+                {
+                    type: "input",
+                    name: "firstName",
+                    message: "Enter the employee's first name:",
+                },
+                {
+                    type: "input",
+                    name: "lastName",
+                    message: "Enter the employee's last name:",
+                },
+                {
+                    type: "list",
+                    name: "roleId",
+                    message: "Select the employee role:",
+                    choices: roles,
+                },
+            ])
+            .then((answers) => {
+                const empData =
+                    "INSERT INTO employee (first_name, last_name, role_id) VALUES ($1,$2,$3)";
+                const values = [
+                    answers.firstName,
+                    answers.lastName,
+                    answers.roleId,
+                ];
+                pool.query(empData, values, (error) => {
+                    if (error) {
                         console.error(error);
-                    });
-            }
-        );
+                        return;
+                    }
+
+                    console.log('Employee added.');
+                    start();
+                });
+            })
+            .catch((error) => {
+                console.error(error);
+            });
     }
-
-
-function viewDepartments() {
-    const query = 'SELECT * From departments';
-    pool.query(query, (err, res) => {
-        if (err) throw err;
-        console.table(res);
-    });
+    );
 }
 
 
