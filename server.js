@@ -93,19 +93,60 @@ function viewEmployees() {
     });
 }
 
-function viewDepartments() {
-    const query = 'SELECT * From departments';
-    pool.query(query, (err, res) => {
-        if (err) throw err;
-        console.table(res);
+function addDepartment() {
+    inquirer
+        .prompt({
+            type: 'input',
+            name: 'name',
+            message: 'Enter name of new department:',
+        })
+        .then((answer) => {
+            console.log(answer.name);
+            const query = `INSERT INTO departments (department_name) VALUES ('${answer.name}')`;
+            pool.query(query, (err, res) => {
+                if (err) throw err;
+                console.log('Added department ${answer.name}.');
+            })
     });
 }
 
-function viewDepartments() {
-    const query = 'SELECT * From departments';
-    pool.query(query, (err, res) => {
+function addRole() {
+    inquirer
+        .prompt({
+            type: 'input',
+            name: 'title',
+            message: 'Enter the new role title:',
+        },
+        {
+            type: 'input',
+            name: 'salary',
+            message: 'Enter the salary of new role:',
+        },
+        {
+            type: 'list',
+            name: 'department',
+            message: 'Select the department for the role:',
+            choices: res.map(
+                (department) => department.department_name
+            ),
+        },
+    )
+    .then((answers) => {
+        const department = res.find(
+            (department) => department.name === answers.department
+        );
+    })
+    const query = 'INSERT INTO roles SET ?';
+    pool.query(
+        query,
+        {
+            title: answers.title,
+            salary: answers.salary,
+            department_id: department,
+        },
+        (err, res) => {
         if (err) throw err;
-        console.table(res);
+        console.log('Added role ${answers.title} with salary ${answers.salary} to the ${answers.department} department.');
     });
 }
 
